@@ -1,0 +1,466 @@
+openapi: 3.0.3
+info:
+  title: QuikMove API
+  version: 0.1.0
+  description: |
+    Backend API for QuikMove (Node.js + Express + Sequelize).
+    
+    Auth uses JWT bearer tokens. All protected endpoints require
+    `Authorization: Bearer <token>`.
+servers:
+  - url: http://localhost:3000
+    description: Local dev
+tags:
+  - name: Public
+  - name: Auth
+  - name: Orders
+  - name: Payments
+paths:
+  /:
+    get:
+      tags: [Public]
+      summary: API root
+      responses:
+        '200':
+          description: Plaintext banner
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: QuikMove API is running.
+  /health:
+    get:
+      tags: [Public]
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /api/login:
+    post:
+      tags: [Auth]
+      summary: Login and obtain JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/orders:
+    post:
+      tags: [Orders]
+      summary: Create an order
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    get:
+      tags: [Orders]
+      summary: List orders
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+          description: Filter by status
+      responses:
+        '200':
+          description: List of orders (scoped by role)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderListItem'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/orders/{id}:
+    patch:
+      tags: [Orders]
+      summary: Update an order
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrderRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/payments:
+    post:
+      tags: [Payments]
+      summary: Create a payment intent and record
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePaymentResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/payments/webhook:
+    post:
+      tags: [Payments]
+      summary: Payment provider webhook (no auth)
+      description: Verify signatures in production.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentWebhookRequest'
+      responses:
+        '200':
+          description: Acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+                    example: true
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/payments/webhook/stripe:
+    post:
+      tags: [Payments]
+      summary: Stripe webhook (signature verified)
+      description: Receives Stripe webhook events and updates Payment/Order accordingly.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Raw Stripe event body (signature verified via Stripe signature header)
+      responses:
+        '200':
+          description: Acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+                    example: true
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /api/users:
+    get:
+      tags: [Auth]
+      summary: List users (admin only)
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: query
+          name: role
+          schema:
+            $ref: '#/components/schemas/Role'
+          required: false
+          description: Filter by role
+      responses:
+        '200':
+          description: Users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPublic'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+
+    HealthResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+
+    Role:
+      type: string
+      enum: [client, driver, admin]
+
+    OrderStatus:
+      type: string
+      enum: [created, assigned, in_progress, completed, cancelled]
+
+    PaymentStatus:
+      type: string
+      enum: [pending, succeeded, failed]
+
+    PaymentProvider:
+      type: string
+      enum: [stripe, paypal, mock]
+
+    UserPublic:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+        role: { $ref: '#/components/schemas/Role' }
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    User:
+      allOf:
+        - $ref: '#/components/schemas/UserPublic'
+      description: Password hash is omitted from API responses.
+
+    Order:
+      type: object
+      properties:
+        id: { type: integer }
+        referenceNumber:
+          type: string
+          description: Human-friendly reference used for support verification.
+        status: { $ref: '#/components/schemas/OrderStatus' }
+        pickupAddress: { type: string }
+        dropoffAddress: { type: string }
+        price:
+          type: number
+          format: float
+          nullable: true
+        paymentStatus:
+          type: string
+          enum: [pending, paid, failed, refunded]
+        userId: { type: integer }
+        driverId:
+          type: integer
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    OrderListItem:
+      allOf:
+        - $ref: '#/components/schemas/Order'
+        - type: object
+          properties:
+            client:
+              allOf:
+                - $ref: '#/components/schemas/UserPublic'
+            driver:
+              allOf:
+                - $ref: '#/components/schemas/UserPublic'
+
+    Payment:
+      type: object
+      properties:
+        id: { type: integer }
+        orderId: { type: integer }
+        provider: { $ref: '#/components/schemas/PaymentProvider' }
+        amount:
+          type: integer
+          description: Minor units (e.g., cents)
+        currency: { type: string }
+        status: { $ref: '#/components/schemas/PaymentStatus' }
+        providerPaymentId:
+          type: string
+          nullable: true
+        raw:
+          type: object
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    RegisterRequest:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+        password: { type: string, format: password }
+        role:
+          $ref: '#/components/schemas/Role'
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, format: password }
+
+    AuthResponse:
+      type: object
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        token: { type: string }
+
+    CreateOrderRequest:
+      type: object
+      required: [pickupAddress, dropoffAddress]
+      properties:
+        pickupAddress: { type: string }
+        dropoffAddress: { type: string }
+        price:
+          type: number
+          format: float
+          nullable: true
+          description: Optional; if omitted the server calculates it from pickup/dropoff distance.
+        serviceType:
+          type: string
+          enum: [house_move, parcel, express, freight]
+          description: Optional service type used for pricing.
+
+    UpdateOrderRequest:
+      type: object
+      properties:
+        status: { $ref: '#/components/schemas/OrderStatus' }
+        driverId:
+          type: integer
+          nullable: true
+
+    CreatePaymentRequest:
+      type: object
+      required: [orderId]
+      properties:
+        orderId: { type: integer }
+        provider: { $ref: '#/components/schemas/PaymentProvider' }
+
+    CreatePaymentResponse:
+      type: object
+      properties:
+        payment: { $ref: '#/components/schemas/Payment' }
+        clientSecret:
+          type: string
+          nullable: true
+          description: Present for Stripe/Mock providers
+
+    PaymentWebhookRequest:
+      type: object
+      required: [providerPaymentId, status]
+      properties:
+        provider:
+          $ref: '#/components/schemas/PaymentProvider'
+        providerPaymentId: { type: string }
+        status: { $ref: '#/components/schemas/PaymentStatus' }

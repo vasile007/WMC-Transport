@@ -1,0 +1,122 @@
+import { useEffect, useRef, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { connectSocket } from '../services/socket.js';
+import { orders as ordersApi } from '../services/orders.js';
+import { useAuth } from '../services/authContext.jsx';
+
+function loadGoogleMaps(apiKey) {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.maps) return resolve(window.google.maps);
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
+    script.async = true;
+    script.onload = () => resolve(window.google.maps);
+    script.onerror = reject;
+    document.body.appendChild(script);
+  });
+}
+
+export default function Track() {
+  const { orderId } = useParams();
+  const { token } = useAuth();
+  const [last, setLast] = useState(null);
+  const [order, setOrder] = useState(null);
+  const [eta, setEta] = useState(null);
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+  const socketRef = useRef(null);
+  const pollRef = useRef(null);
+
+  useEffect(() => {
+    async function loadOrder() {
+      try {
+        const all = await ordersApi.list(token);
+        const found = (all || []).find(o => String(o.id) === String(orderId));
+        setOrder(found || null);
+        if (found?.status === 'cancelled') {
+          if (socketRef.current) {
+            socketRef.current.disconnect();
+            socketRef.current = null;
+          }
+        }
+      } catch {}
+    }
+
+    loadOrder();
+    pollRef.current = setInterval(loadOrder, 10000);
+
+    socketRef.current = connectSocket();
+    socketRef.current.emit('tracking:subscribe', { orderId: Number(orderId) });
+    socketRef.current.on('location', (payload) => {
+      if (String(payload.orderId) === String(orderId)) setLast(payload);
+    });
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+      socketRef.current?.disconnect();
+    };
+  }, [orderId, token]);
+
+  useEffect(() => {
+    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || import.meta.env.VITE_GOOGLE_MAPS_KEY;
+    if (!key || order?.status === 'cancelled') return;
+    loadGoogleMaps(key)
+      .then((maps) => {
+        if (!mapRef.current) {
+          mapRef.current = new maps.Map(document.getElementById('map'), {
+            center: { lat: 0, lng: 0 },
+            zoom: 12,
+          });
+        }
+        if (last) {
+          const pos = { lat: last.lat, lng: last.lng };
+          mapRef.current.setCenter(pos);
+          if (!markerRef.current)
+            markerRef.current = new maps.Marker({ position: pos, map: mapRef.current });
+          markerRef.current.setPosition(pos);
+        }
+
+        if (last && order?.dropoffAddress) {
+          const geocoder = new maps.Geocoder();
+          geocoder.geocode({ address: order.dropoffAddress }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+              const dest = results[0].geometry.location;
+              const dlat = (dest.lat() - last.lat) * Math.PI/180;
+              const dlng = (dest.lng() - last.lng) * Math.PI/180;
+              const a = Math.sin(dlat/2)**2 + Math.cos(last.lat*Math.PI/180) * Math.cos(dest.lat()*Math.PI/180) * Math.sin(dlng/2)**2;
+              const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+              const km = 6371 * c;
+              const avgKmh = 40; // heuristic average
+              const minutes = Math.round((km/avgKmh)*60);
+              setEta({ km: Number(km.toFixed(1)), minutes });
+            }
+          });
+        }
+      })
+      .catch(() => {});
+  }, [last, order]);
+
+  return (
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-gray-200">
+        <div className="max-w-3xl mx-auto px-4 h-12 flex items-center justify-between">
+          <Link to="/client-dashboard" className="text-red-700 hover:text-red-800 font-medium">Back to Dashboard</Link>
+          <div className="text-sm text-gray-500">Order #{orderId}</div>
+        </div>
+      </div>
+      <div className="max-w-3xl mx-auto px-4 py-4 space-y-3">
+        <h1 className="text-2xl font-bold text-gray-900">Tracking Order #{orderId}</h1>
+        {last ? (
+          <div className="text-sm text-gray-700">
+            Driver #{last.driverId} @ lat:{last.lat.toFixed(5)} | lng:{last.lng.toFixed(5)}
+            {eta && (
+              <span className="ml-3 text-gray-900 font-medium">~{eta.km} km left · {eta.minutes} min ETA</span>
+            )}
+          </div>
+        ) : (
+          <div className="text-sm text-gray-500">Waiting for driver location…</div>
+        )}
+        <div id="map" className="w-full h-[420px] bg-white border border-gray-200 rounded-xl" />
+      </div>
+    </div>
+  );
+}

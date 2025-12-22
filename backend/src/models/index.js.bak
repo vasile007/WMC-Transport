@@ -1,0 +1,22 @@
+   1: import { sequelize } from '../db/index.js';
+   2: import { initUser, User } from './User.js';
+   3: import { initOrder, Order } from './Order.js';
+   4: import { initPayment, Payment } from './Payment.js';
+   5: 
+   6: // Initialize models
+   7: initUser(sequelize);
+   8: initOrder(sequelize);
+   9: initPayment(sequelize);
+  10: 
+  11: // Associations
+  12: User.hasMany(Order, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
+  13: Order.belongsTo(User, { as: 'client', foreignKey: { name: 'userId', allowNull: false } });
+  14: 
+  15: User.hasMany(Order, { foreignKey: { name: 'driverId', allowNull: true }, as: 'driverOrders' });
+  16: Order.belongsTo(User, { as: 'driver', foreignKey: { name: 'driverId', allowNull: true } });
+  17: 
+  18: Order.hasMany(Payment, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
+  19: Payment.belongsTo(Order, { foreignKey: { name: 'orderId', allowNull: false } });
+  20: 
+  21: export { sequelize, User, Order, Payment };
+  22: 

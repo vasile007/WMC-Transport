@@ -1,0 +1,32 @@
+{
+  "name": "quikmove",
+  "version": "0.1.0",
+  "description": "QuikMove transport backend (Node.js + Express + Sequelize)",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "db:sync": "node src/scripts/sync.js",
+    "postman:gen": "openapi2postmanv2 -s openapi.yaml -o postman/QuikMove.postman_collection.json -p -O folderStrategy=tags"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-async-errors": "^3.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.15.3",
+    "paypal-rest-sdk": "^1.8.1",
+    "sequelize": "^6.37.3",
+    "socket.io": "^4.7.5",
+    "sqlite3": "^5.1.7",
+    "stripe": "^16.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4",
+    "openapi-to-postmanv2": "^4.21.0"
+  }
+}
