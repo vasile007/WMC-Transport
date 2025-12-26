@@ -2,36 +2,31 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// ============================================================
-// 🧩 1️⃣ Asigurăm că fișierul .env este încărcat din folderul backend
-// ============================================================
+// ------------------------------------------------------------
+// 1) Load .env file from the backend folder
+// ------------------------------------------------------------
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const envPath = path.resolve(__dirname, "../../.env");
 
 dotenv.config({ path: envPath });
 
-// ✅ Debug — vezi ce se încarcă (poți șterge după ce merge)
-console.log("✅ ENV file path:", envPath);
-console.log("✅ JWT_SECRET loaded:", process.env.JWT_SECRET);
-console.log("DB_DIALECT from .env:", process.env.DB_DIALECT);
-
-// ============================================================
-// ⚙️ 2️⃣ Config general
-// ============================================================
+// ------------------------------------------------------------
+// 2) General application configuration
+// ------------------------------------------------------------
 const dbDialect = (process.env.DB_DIALECT || "sqlite").toLowerCase();
 
 const config = {
-  // 🌍 Environment
+  // Environment
   env: process.env.NODE_ENV || "development",
   port: parseInt(process.env.PORT || "3000", 10),
 
-  // 🔐 JWT
+  // JWT configuration
   jwt: {
     secret: process.env.JWT_SECRET || "dev-secret-change-me",
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   },
 
-  // 💳 Payments
+  // Payment configuration
   payments: {
     stripeSecret: process.env.STRIPE_SECRET_KEY || "",
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
@@ -40,7 +35,7 @@ const config = {
     currency: process.env.CURRENCY || "gbp",
   },
 
-  // 🗄️ Database
+  // Database configuration
   db: {
     dialect: dbDialect,
     ...(dbDialect === "sqlite"
@@ -65,6 +60,7 @@ const config = {
 };
 
 export { config };
+
 
 
 

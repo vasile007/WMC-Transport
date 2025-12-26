@@ -1,12 +1,17 @@
 import jwt from "jsonwebtoken";
-const JWT_SECRET = process.env.JWT_SECRET || "replace-with-strong-secret";
 
-// 🔑 Creează token
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is missing from environment variables");
+}
+
+// Create token
 export function signToken(payload) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
 }
 
-// 🔍 Verifică token (opțional)
+// Verify token
 export function verifyToken(token) {
   try {
     return jwt.verify(token, JWT_SECRET);
@@ -14,6 +19,7 @@ export function verifyToken(token) {
     return null;
   }
 }
+
 
 
 
