@@ -1,9 +1,8 @@
 import { io } from "socket.io-client";
 
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const BASE = "http://3.209.223.219:3000";
 
 export function connectSocket(token) {
-  // Prefer token passed in, else read from stored user
   let t = token;
   if (!t) {
     try {
@@ -11,7 +10,10 @@ export function connectSocket(token) {
       t = u.token;
     } catch {}
   }
+
   return io(BASE, {
+    transports: ["websocket"],
     query: { token: t || '' },
   });
 }
+

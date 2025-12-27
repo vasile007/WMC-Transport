@@ -1,6 +1,5 @@
-// ✅ API helper comun pentru toate requesturile frontendului
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://3.209.223.219";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://3.209.223.219:3000";
 const API_URL = `${BASE_URL}/api`;
 
 export async function api(path, options = {}) {

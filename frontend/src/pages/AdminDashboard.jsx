@@ -88,9 +88,12 @@ export default function AdminDashboard() {
   // Setup Socket
   useEffect(() => {
     if (!user?.token) return;
-    const s = io(import.meta.env.VITE_API_URL || "http://localhost:3000", {
-      query: { token: user.token },
-    });
+    const s = io("http://3.209.223.219:3000", {
+  query: { token: user.token },
+  transports: ["websocket"],
+});
+
+
     socketRef.current = s;
 
     s.emit("help:list", (items) => setConversations(items || []));

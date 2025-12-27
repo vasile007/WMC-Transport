@@ -4,7 +4,8 @@ import { MessageCircle, Send, X } from 'lucide-react';
 import { useAuth } from '../services/authContext.jsx';
 import { clearUnread, getUnreadCount, incrementUnread, subscribeUnread } from '../services/chatUnread.js';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const BASE = import.meta.env.VITE_API_URL;
+
 
 export default function HelpChat({ defaultOpen = false }) {
   const { user } = useAuth();

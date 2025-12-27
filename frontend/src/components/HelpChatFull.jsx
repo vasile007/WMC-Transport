@@ -4,7 +4,8 @@ import { Send, Circle, X } from 'lucide-react';
 import { useAuth } from '../services/authContext.jsx';
 import { clearUnread } from '../services/chatUnread.js';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const BASE = import.meta.env.VITE_API_URL;
+
 
 export default function HelpChatFull({ onClose, size = "md" }) {
   const { user } = useAuth();
