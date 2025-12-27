@@ -1,6 +1,7 @@
 
-const BASE_URL = "http://3.209.223.219:3000";
-const API_URL = `${BASE_URL}/api`;
+const BASE_URL = "/api";
+const API_URL = `${BASE_URL}`;
+
 
 
 export async function api(path, options = {}) {
