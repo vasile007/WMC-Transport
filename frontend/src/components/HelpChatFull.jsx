@@ -27,9 +27,9 @@ export default function HelpChatFull({ onClose, size = "md" }) {
     clearUnread();
 
 
-const s = io(import.meta.env.VITE_SOCKET_URL, {
-  path: "/api/socket.io",
-  transports: ["websocket"],
+const s = io("http://3.209.223.219:3000", {
+  path: "/socket.io",
+  transports: ["websocket", "polling"],
   query: { token }
 });
 

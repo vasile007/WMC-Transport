@@ -2,7 +2,7 @@
 //const BASE_URL = "/api";
 //const API_URL = `${BASE_URL}`;
 
-export const BASE_URL = import.meta.env.VITE_API_URL || "/api";
+export const BASE_URL = "/api";
 export const API_URL = BASE_URL;
 
 
@@ -43,7 +43,6 @@ export async function api(path, options = {}) {
   if (!raw) return { ok: true };
   return { ok: true, data: raw };
 }
-
 
 
 
