@@ -21,11 +21,14 @@ export default function HelpChat({ defaultOpen = false }) {
 
   useEffect(() => {
     const token = user?.token;
-    const s = io(BASE_URL, {
+
+
+const s = io(import.meta.env.VITE_SOCKET_URL, {
   path: "/api/socket.io",
   transports: ["websocket"],
   query: { token }
 });
+    
 
 
 

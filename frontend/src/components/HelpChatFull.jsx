@@ -25,11 +25,14 @@ export default function HelpChatFull({ onClose, size = "md" }) {
     const token = user?.token;
     if (!token) return;
     clearUnread();
-const s = io(BASE_URL, {
+
+
+const s = io(import.meta.env.VITE_SOCKET_URL, {
   path: "/api/socket.io",
   transports: ["websocket"],
   query: { token }
 });
+
 
 
     socketRef.current = s;
