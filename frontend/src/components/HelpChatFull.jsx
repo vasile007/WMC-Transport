@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { io } from 'socket.io-client';
+import  io  from 'socket.io-client';
 import { Send, Circle, X } from 'lucide-react';
 import { useAuth } from '../services/authContext.jsx';
 import { clearUnread } from '../services/chatUnread.js';
