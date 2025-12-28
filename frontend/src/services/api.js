@@ -1,6 +1,9 @@
 
-const BASE_URL = "/api";
-const API_URL = `${BASE_URL}`;
+//const BASE_URL = "/api";
+//const API_URL = `${BASE_URL}`;
+
+export const BASE_URL = import.meta.env.VITE_API_URL || "/api";
+
 
 
 
