@@ -5,7 +5,6 @@ import { useAuth } from '../services/authContext.jsx';
 import { clearUnread, getUnreadCount, incrementUnread, subscribeUnread } from '../services/chatUnread.js';
 import { BASE_URL } from "../services/api";
 
-const BASE = import.meta.env.VITE_API_URL;
 
 
 export default function HelpChat({ defaultOpen = false }) {
