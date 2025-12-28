@@ -23,7 +23,7 @@ export default function HelpChat({ defaultOpen = false }) {
     const token = user?.token;
 
 
-const s = io("http://3.209.223.219:3000", {
+const s = io("/", {
   path: "/socket.io",
   transports: ["websocket", "polling"],
   query: { token }

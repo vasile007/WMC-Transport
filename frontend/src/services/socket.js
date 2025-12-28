@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 
 
-const BASE = "http://3.209.223.219:3000";
+const BASE = "/";
 
 export function connectSocket(token) {
   let t = token;
@@ -19,4 +19,3 @@ export function connectSocket(token) {
     query: { token: t || "" },
   });
 }
-

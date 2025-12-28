@@ -27,7 +27,7 @@ export default function HelpChatFull({ onClose, size = "md" }) {
     clearUnread();
 
 
-const s = io("http://3.209.223.219:3000", {
+const s = io("/", {
   path: "/socket.io",
   transports: ["websocket", "polling"],
   query: { token }
