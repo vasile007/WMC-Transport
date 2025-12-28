@@ -22,23 +22,19 @@ export default function HelpChatFull({ onClose, size = "md" }) {
   const audioRef = useRef(null);
 
   useEffect(() => {
-    const token = user?.token;
-    let t = token;
-    if (!t) {
-      try {
-        const u = JSON.parse(localStorage.getItem("user") || "{}");
-        t = u.token;
-      } catch {}
-    }
-    if (!token) return;
+    let t = "";
+    try {
+      t = localStorage.getItem("token") || "";
+    } catch {}
+    if (!t) return;
+    const token = t || "";
     clearUnread();
 
 
-const s = io("https://wmc-transport.vercel.app", {
+const s = io("http://3.209.223.219:3000", {
   transports: ["polling"],
   upgrade: false,
-  withCredentials: true,
-  query: { token: t || "" }
+  query: { token }
 });
 
 

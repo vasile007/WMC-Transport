@@ -88,18 +88,15 @@ export default function AdminDashboard() {
   // Setup Socket
   useEffect(() => {
     if (!user?.token) return;
-    let t = user?.token;
-    if (!t) {
-      try {
-        const u = JSON.parse(localStorage.getItem("user") || "{}");
-        t = u.token;
-      } catch {}
-    }
-    const s = io("https://wmc-transport.vercel.app", {
+    let t = "";
+    try {
+      t = localStorage.getItem("token") || "";
+    } catch {}
+    const token = t || "";
+    const s = io("http://3.209.223.219:3000", {
   transports: ["polling"],
   upgrade: false,
-  withCredentials: true,
-  query: { token: t || "" }
+  query: { token }
 });
 
 

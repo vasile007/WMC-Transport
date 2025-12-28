@@ -1,22 +1,20 @@
 import io from "socket.io-client";
 
 
-const BASE = "https://wmc-transport.vercel.app";
+const BASE = "http://3.209.223.219:3000";
 
 export function connectSocket(token) {
   let t = token;
-
   if (!t) {
     try {
-      const u = JSON.parse(localStorage.getItem("user") || "{}");
-      t = u.token;
+      t = localStorage.getItem("token") || "";
     } catch {}
   }
 
+  const token = t || "";
   return io(BASE, {
     transports: ["polling"],
     upgrade: false,
-    withCredentials: true,
-    query: { token: t || "" }
+    query: { token }
   });
 }
