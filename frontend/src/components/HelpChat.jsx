@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 import { MessageCircle, Send, X } from 'lucide-react';
 import { useAuth } from '../services/authContext.jsx';
 import { clearUnread, getUnreadCount, incrementUnread, subscribeUnread } from '../services/chatUnread.js';
+import { BASE_URL } from "../services/api";
 
 const BASE = import.meta.env.VITE_API_URL;
 
@@ -21,7 +22,14 @@ export default function HelpChat({ defaultOpen = false }) {
 
   useEffect(() => {
     const token = user?.token;
-    const s = io(BASE_URL, { query: { token } });
+    const s = io(BASE_URL, {
+  path: "/api/socket.io",
+  transports: ["websocket"],
+  query: { token }
+});
+
+
+
     socketRef.current = s;
     const onConnect = () => setConnected(true);
     const onDisconnect = () => setConnected(false);

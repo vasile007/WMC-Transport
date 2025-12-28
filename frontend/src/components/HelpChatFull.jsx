@@ -3,8 +3,9 @@ import { io } from 'socket.io-client';
 import { Send, Circle, X } from 'lucide-react';
 import { useAuth } from '../services/authContext.jsx';
 import { clearUnread } from '../services/chatUnread.js';
+import { BASE_URL } from "../services/api";
 
-const BASE = import.meta.env.VITE_API_URL;
+const BASE = BASE_URL;
 
 
 export default function HelpChatFull({ onClose, size = "md" }) {
@@ -24,7 +25,13 @@ export default function HelpChatFull({ onClose, size = "md" }) {
     const token = user?.token;
     if (!token) return;
     clearUnread();
-    const s = io(BASE_URL, { query: { token } });
+const s = io(BASE_URL, {
+  path: "/api/socket.io",
+  transports: ["websocket"],
+  query: { token }
+});
+
+
     socketRef.current = s;
     const onConnect = () => setConnected(true);
     const onDisconnect = () => setConnected(false);
