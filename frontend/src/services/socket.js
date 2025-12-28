@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 
 
-const BASE = "/";
+const BASE = "https://wmc-transport.vercel.app";
 
 export function connectSocket(token) {
   let t = token;
@@ -14,8 +14,8 @@ export function connectSocket(token) {
   }
 
   return io(BASE, {
-    path: "/socket.io",
-    transports: ["websocket", "polling"],
-    query: { token: t || "" },
+    transports: ["polling"],
+    upgrade: false,
+    withCredentials: true
   });
 }

@@ -23,10 +23,10 @@ export default function HelpChat({ defaultOpen = false }) {
     const token = user?.token;
 
 
-const s = io("/", {
-  path: "/socket.io",
-  transports: ["websocket", "polling"],
-  query: { token }
+const s = io("https://wmc-transport.vercel.app", {
+  transports: ["polling"],
+  upgrade: false,
+  withCredentials: true
 });
     
 

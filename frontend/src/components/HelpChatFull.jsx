@@ -27,10 +27,10 @@ export default function HelpChatFull({ onClose, size = "md" }) {
     clearUnread();
 
 
-const s = io("/", {
-  path: "/socket.io",
-  transports: ["websocket", "polling"],
-  query: { token }
+const s = io("https://wmc-transport.vercel.app", {
+  transports: ["polling"],
+  upgrade: false,
+  withCredentials: true
 });
 
 
