@@ -21,12 +21,20 @@ export default function HelpChat({ defaultOpen = false }) {
 
   useEffect(() => {
     const token = user?.token;
+    let t = token;
+    if (!t) {
+      try {
+        const u = JSON.parse(localStorage.getItem("user") || "{}");
+        t = u.token;
+      } catch {}
+    }
 
 
 const s = io("https://wmc-transport.vercel.app", {
   transports: ["polling"],
   upgrade: false,
-  withCredentials: true
+  withCredentials: true,
+  query: { token: t || "" }
 });
     
 

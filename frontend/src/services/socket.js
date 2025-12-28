@@ -16,6 +16,7 @@ export function connectSocket(token) {
   return io(BASE, {
     transports: ["polling"],
     upgrade: false,
-    withCredentials: true
+    withCredentials: true,
+    query: { token: t || "" }
   });
 }
