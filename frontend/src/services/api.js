@@ -1,11 +1,12 @@
+const DEFAULT_API_URL = "https://api.wmc-transport.online";
+const ENV_API_URL = (import.meta.env.VITE_API_URL || "").trim();
+export const BASE_URL = (ENV_API_URL || DEFAULT_API_URL).replace(/\/+$/, "");
 
-//const BASE_URL = "/api";
-//const API_URL = `${BASE_URL}`;
-
-export const BASE_URL = "/api";
-export const API_URL = BASE_URL;
-
-
+function buildUrl(path) {
+  if (!path) return BASE_URL;
+  if (/^https?:\/\//i.test(path)) return path;
+  return path.startsWith("/") ? `${BASE_URL}${path}` : `${BASE_URL}/${path}`;
+}
 
 export async function api(path, options = {}) {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -18,7 +19,7 @@ export async function api(path, options = {}) {
     ...(options.headers || {}),
   };
 
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(buildUrl(path), {
     ...options,
     headers,
   });
@@ -43,7 +44,6 @@ export async function api(path, options = {}) {
   if (!raw) return { ok: true };
   return { ok: true, data: raw };
 }
-
 
 
 

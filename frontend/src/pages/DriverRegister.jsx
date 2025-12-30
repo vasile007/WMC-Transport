@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { api } from "../services/api";
 
 export default function DriverRegister() {
   const [form, setForm] = useState({
@@ -29,17 +30,13 @@ export default function DriverRegister() {
     setSuccess("");
 
     try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/register`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    ...form,
-    role: "driver",
-  }),
-});
-
-
-      if (!res.ok) throw new Error("Registration failed");
+      await api("/register", {
+        method: "POST",
+        body: JSON.stringify({
+          ...form,
+          role: "driver",
+        }),
+      });
       setSuccess("Account created successfully! You can now log in.");
       setTimeout(() => navigate("/driver-login"), 1500);
     } catch (err) {

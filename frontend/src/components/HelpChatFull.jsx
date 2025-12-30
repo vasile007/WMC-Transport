@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import  io  from 'socket.io-client';
+import * as ioClient from 'socket.io-client';
 import { Send, Circle, X } from 'lucide-react';
 import { useAuth } from '../services/authContext.jsx';
 import { clearUnread } from '../services/chatUnread.js';
@@ -9,6 +9,7 @@ const BASE = BASE_URL;
 
 
 export default function HelpChatFull({ onClose, size = "md" }) {
+  const io = ioClient.io || ioClient.default || ioClient;
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');

@@ -3,9 +3,10 @@ import { RefreshCcw, MessageCircle, Send } from "lucide-react";
 import { useAuth } from "../services/authContext.jsx";
 import { orders as ordersApi } from "../services/orders.js";
 import { users as usersApi } from "../services/users.js";
-import  io  from "socket.io-client";
+import * as ioClient from "socket.io-client";
 
 export default function AdminDashboard() {
+  const io = ioClient.io || ioClient.default || ioClient;
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [drivers, setDrivers] = useState([]);

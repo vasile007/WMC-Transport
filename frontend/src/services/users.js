@@ -1,7 +1,7 @@
 import { api } from "./api.js";
 
 export const users = {
-  // 🔹 List users (admin only) — poate filtra după rol
+  // 🔹 List users (admin only) —
   async list(token, role) {
     const query = role ? `?role=${role}` : "";
     return api(`/users${query}`, {
