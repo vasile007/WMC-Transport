@@ -3,10 +3,9 @@ import { RefreshCcw, MessageCircle, Send } from "lucide-react";
 import { useAuth } from "../services/authContext.jsx";
 import { orders as ordersApi } from "../services/orders.js";
 import { users as usersApi } from "../services/users.js";
-import * as ioClient from "socket.io-client";
+import { connectSocket } from "../services/socket";
 
 export default function AdminDashboard() {
-  const io = ioClient.io || ioClient.default || ioClient;
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [drivers, setDrivers] = useState([]);
@@ -94,13 +93,7 @@ export default function AdminDashboard() {
       t = localStorage.getItem("token") || "";
     } catch {}
     const token = t || "";
-    const s = io("http://3.209.223.219:3000", {
-  transports: ["polling"],
-  upgrade: false,
-  query: { token }
-});
-
-
+    const s = connectSocket({ token });
     socketRef.current = s;
 
     s.emit("help:list", (items) => setConversations(items || []));

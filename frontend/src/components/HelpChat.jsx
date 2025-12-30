@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import * as ioClient from 'socket.io-client';
+import { connectSocket } from "../services/socket";
 import { MessageCircle, Send, X } from 'lucide-react';
 import { useAuth } from '../services/authContext.jsx';
 import { clearUnread, getUnreadCount, incrementUnread, subscribeUnread } from '../services/chatUnread.js';
@@ -8,7 +8,6 @@ import { BASE_URL } from "../services/api";
 
 
 export default function HelpChat({ defaultOpen = false }) {
-  const io = ioClient.io || ioClient.default || ioClient;
   const { user } = useAuth();
   const [open, setOpen] = useState(defaultOpen);
   const [messages, setMessages] = useState([]);
@@ -26,13 +25,7 @@ export default function HelpChat({ defaultOpen = false }) {
       t = localStorage.getItem("token") || "";
     } catch {}
     const token = t || "";
-
-
-const s = io("http://3.209.223.219:3000", {
-  transports: ["polling"],
-  upgrade: false,
-  query: { token }
-});
+    const s = connectSocket({ token });
     
 
 

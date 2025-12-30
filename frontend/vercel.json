@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://3.209.223.219:3000/api/:path*"
+      "destination": "https://api.wmc-transport.online/api/:path*"
     },
     {
       "source": "/socket.io/:path*",
-      "destination": "http://3.209.223.219:3000/socket.io/:path*"
+      "destination": "https://api.wmc-transport.online/socket.io/:path*"
     },
     {
       "source": "/(.*)",
@@ -14,4 +14,5 @@
     }
   ]
 }
+
 
