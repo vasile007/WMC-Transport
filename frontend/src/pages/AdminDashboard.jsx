@@ -3,7 +3,7 @@ import { RefreshCcw, MessageCircle, Send } from "lucide-react";
 import { useAuth } from "../services/authContext.jsx";
 import { orders as ordersApi } from "../services/orders.js";
 import { users as usersApi } from "../services/users.js";
-import { connectSocket } from "../services/socket";
+import { connectSocket } from "../services/socket.js";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -88,12 +88,9 @@ export default function AdminDashboard() {
   // Setup Socket
   useEffect(() => {
     if (!user?.token) return;
-    let t = "";
-    try {
-      t = localStorage.getItem("token") || "";
-    } catch {}
-    const token = t || "";
-    const s = connectSocket({ token });
+    const s = io(import.meta.env.VITE_API_URL , {
+      query: { token: user.token },
+    });
     socketRef.current = s;
 
     s.emit("help:list", (items) => setConversations(items || []));

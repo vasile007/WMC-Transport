@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { connectSocket } from "../services/socket";
+import { io } from 'socket.io-client';
 import { Send, Circle, X } from 'lucide-react';
 import { useAuth } from '../services/authContext.jsx';
 import { clearUnread } from '../services/chatUnread.js';
-import { BASE_URL } from "../services/api";
 
-const BASE = BASE_URL;
-
+const BASE_URL = import.meta.env.VITE_API_URL ;
 
 export default function HelpChatFull({ onClose, size = "md" }) {
   const { user } = useAuth();
@@ -22,17 +20,10 @@ export default function HelpChatFull({ onClose, size = "md" }) {
   const audioRef = useRef(null);
 
   useEffect(() => {
-    let t = "";
-    try {
-      t = localStorage.getItem("token") || "";
-    } catch {}
-    if (!t) return;
-    const token = t || "";
+    const token = user?.token;
+    if (!token) return;
     clearUnread();
-    const s = connectSocket({ token });
-
-
-
+    const s = io(BASE_URL, { query: { token } });
     socketRef.current = s;
     const onConnect = () => setConnected(true);
     const onDisconnect = () => setConnected(false);
