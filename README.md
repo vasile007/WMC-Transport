@@ -97,7 +97,7 @@ My main responsibilities in this project:
 
 ---
 
-## Local Setup (Optional)
+## Local Setup 
 
 The system is already live. Local execution is optional and intended for development/testing.
 
