@@ -148,7 +148,15 @@ Email: doe@yahoo.com
 
 Password: doe1234
 
-Driver
+To complete the test payment, please use the following Stripe test card details:
+
+Card number: 4242 4242 4242 4242
+
+Expiration date: any future date (MM/YY)
+
+CVC: any 3-digit number
+
+These details work only in test mode and will not result in a real charge.
 
 Email: driver@yahoo.com
 
