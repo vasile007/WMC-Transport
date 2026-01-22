@@ -94,17 +94,6 @@ My main responsibilities in this project:
 - Secured database access (local-only connections)  
 - Participated in system architecture design and API contracts  
 
----
-
-## Screenshots
-
-(Add images in a `/screenshots` folder and reference them here)
-
-Example:
-
-![Homepage](screenshots/home.png)  
-![Admin Dashboard](screenshots/admin.png)  
-![Tracking Map](screenshots/tracking.png)
 
 ---
 
