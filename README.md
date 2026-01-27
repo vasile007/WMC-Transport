@@ -185,8 +185,7 @@ Contact
 
 GitHub: https://github.com/vasile007
 
-LinkedIn: www.linkedin.com/in/
-vasile-bejan-777bba333
+LinkedIn: www.linkedin.com/in/vasile-bejan-777bba333
 
 
 
