@@ -62,7 +62,10 @@ The system is fully deployed on AWS cloud infrastructure and operates as a real 
 
 ---
 
-## System Architecture
+## System Architecture(Diagram)
+<img width="1536" height="1024" alt="Image Mar 8, 2026, 06_18_46 PM" src="https://github.com/user-attachments/assets/e2e338bc-4100-4830-8f1d-8d79df0d5c7e" />
+
+
 
 The application follows a client–server architecture:
 
